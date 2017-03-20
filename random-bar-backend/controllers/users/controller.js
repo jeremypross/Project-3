@@ -93,12 +93,9 @@ controller.login = (req, res) => {
     });
 }
 
-<<<<<<< HEAD
-// credit to Dan Pease who helped us to pass the jwt properly when a user is created and logs in
-=======
 // credit to Dan Pease, Irwin Tsay & Arun Sood who both helped us to pass the jwt properly when a user is created and logs in, and on restricted routes
 
->>>>>>> development
+
 
 
 module.exports = controller;
