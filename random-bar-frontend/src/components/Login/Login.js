@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Link, browserHistory} from "react-router";
+import {browserHistory} from "react-router";
 import update from "react-addons-update";
 
 import Nav from "../Nav/Nav";
@@ -9,8 +9,10 @@ class Login extends Component {
     super(props);
 
     this.state={
-      email: "",
-      password: ""
+      user: {
+        email: "",
+        password: ""
+      }
     };
   }
 
@@ -27,19 +29,31 @@ class Login extends Component {
   }
 
   handleSubmit(event) {
+    console.log('hello')
     event.preventDefault();
-
-    fetch(`http://localhost:8000/authenticate`, {
+    console.log('state in login component', JSON.stringify(this.state))
+    fetch(`http://localhost:8000/users/login`, {
       method: "POST",
+      headers: {
+        'content-type': 'application/json'
+      },
       body: JSON.stringify(this.state)
     })
     .then((results) => {
+      console.log('results in login component:',results);
       results.json().then((jwt) => {
+        console.log('jwt in login component', jwt.token)
+        // console.log(jwt);
         window.localStorage.setItem("MyToken", jwt.token);
-        browserHistory.push("/restricted");
+        console.log('localstorage token',window.localStorage.getItem("MyToken"))
+        // HOW WE CAN LOGOUT - wipe token
+        // window.localStorage.setItem("MyToken", "")
+        // console.log('localstorage after wipe',window.localStorage.getItem("MyToken"))
+
+        browserHistory.push("/users/dashboard");
       })
     })
-    .catch((err) => {
+    .catch(() => {
       alert("Not Authenticated!");
     })
   }
@@ -56,7 +70,7 @@ class Login extends Component {
               <input name="email" type="email" onChange={this.handleChange.bind(this)} />
               <h4>Password:</h4>
               <input name="password" type="password" onChange={this.handleChange.bind(this)} />
-              <button className="standard-btn" type="submit">Login</button>
+              <button className="standard-btn" type="submit">Log In</button>
             </form>
           </div>
         </div>

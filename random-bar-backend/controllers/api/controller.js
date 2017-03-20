@@ -1,6 +1,6 @@
 const yelp = require('yelp-fusion');
 const clientId = process.env.CLIENT_ID;
-const clientSecret = process.env.CLIENT_SECRET;
+const clientSecret = process.env.SECRET;
 
 let controller = {};
 
@@ -9,9 +9,9 @@ controller.randomizer = (req, res) => {
     const client = yelp.client(response.jsonBody.access_token);
 
     client.search({
-      categories: 'bars,beergardens',
+      categories: 'bars,beergardens,cocktailbars',
       location: `${req.params.lat}, ${req.params.lng}`,
-      radius: 500,
+      radius: 750,
       open_now: true
     })
     .then((results) => {

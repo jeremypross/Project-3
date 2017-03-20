@@ -2,17 +2,16 @@ import React from "react";
 
 function BarInfo(props) {
   let restaurantStatus;
-
   let statusStyle = {
     color: '#FF3B44',
   }
 
   if(props.status === false){
-    restaurantStatus = 'Open';
+    restaurantStatus = 'Open Right Now';
     statusStyle.color = '#41FFC0';
 
   } else {
-    restaurantStatus = 'Closed'
+    restaurantStatus = 'This Place is Closed'
   }
 
   return(
@@ -21,9 +20,9 @@ function BarInfo(props) {
         <div className="bar-info">
           <ul>
             <li style={statusStyle} >{restaurantStatus}</li>
-            <li>{props.rating}</li>
-            <li>{props.phone_number}</li>
-            <li>{props.price_range}</li>
+            <li>Rating: {props.rating}</li>
+            <li>Phone: {props.phone_number}</li>
+            <li>Price: {props.price_range}</li>
           </ul>
         </div>
       </div>

@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 
 const User = require('../../models/user');
+const Bar = require('../../models/bar');
 
 const controller = {};
 
@@ -17,13 +18,28 @@ controller.new = (req, res) => {
 };
 
 controller.authorizeToken = (req, res) => {
+
   jwt.verify(req.headers.authorization, "taco cat", (err, decoded) => {
     if (err) {
+      console.log('one');
       res
       .status(401)
       .json({ error: err.message });
     } else {
-      res.json({ message: "This is restricted content coming from the Node Server."})
+      // pass favorite bars to dashboard page here
+      Bar
+        .findByUserEmail(decoded.email)
+        .then((data) => {
+          res.json({
+            data: data,
+            user_id: decoded.user_id
+          });
+        })
+        .catch((err) => {
+          console.log('ERROR', err);
+        })
+      console.log('two', decoded);
+      // res.json({ message: "This is restricted content coming from the Node Server."})
     }
   });
 }
@@ -39,9 +55,11 @@ controller.show = (req, res) => {
 };
 
 controller.create = (req, res) => {
+  console.log('req body in controller', req.body)
   User
     .create(req.body.user)
     .then((data) => {
+      console.log('data in controller', data)
       res.status(201)
       .json({ user: data })
     })
@@ -49,16 +67,8 @@ controller.create = (req, res) => {
 };
 
 controller.login = (req, res) => {
-  const error = {};
-  // if error exists
-  if (req.query.error) error.message = 'Incorrect Login Credentials';
-  // send back to login page and render error message
-  res.render('users/login', { message: error.message });
-}
-
-controller.process_login = (req, res) => {
   User
-    .findByEmail(req.body.user)
+    .findByEmail(req.body.user.email)
     .then((user) => {
       // if user exists
       if (user) {
@@ -66,10 +76,12 @@ controller.process_login = (req, res) => {
         const isAuthed = bcrypt.compareSync(req.body.user.password, user.password_digest);
         if (isAuthed) {
           // create JWT with email from user record with options
-          const token = jwt.sign({ email : user.email }, 'taco cat', { expiresIn: '7d' });
+          const token = jwt.sign({
+            email : user.email,
+            user_id: user.id
+          }, 'taco cat', { expiresIn: '7d' });
           // respond with token
-          res.json({ token: token });
-
+          res.json({ token });
         } else {
           // else send user back to login view
           res.sendStatus(401);
@@ -80,6 +92,9 @@ controller.process_login = (req, res) => {
       }
     });
 }
+
+// credit to Dan Pease, Irwin Tsay & Arun Sood who both helped us to pass the jwt properly when a user is created and logs in, and on restricted routes
+
 
 
 module.exports = controller;

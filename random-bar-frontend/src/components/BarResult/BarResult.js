@@ -1,5 +1,6 @@
-import React, {Component} from "react";
-import {Link} from "react-router";
+import React, { Component } from "react";
+import { Link, browserHistory } from "react-router";
+
 
 import Nav from "../Nav/Nav";
 import BarInfo from "./BarInfo";
@@ -15,9 +16,18 @@ class BarResult extends Component {
           longitude: -73.968285
         }
       },
-      bars: '',
-      display: {
-        display: 'none'
+      bars: {
+        name: '',
+        coordinates: {
+          latitude: 40.785091,
+          longitude: -73.968285
+        }
+      },
+      loader: {
+        display: 'block'
+      },
+      isVisible: {
+        opacity: '0',
       }
     }
   }
@@ -32,6 +42,8 @@ class BarResult extends Component {
       .then((results) => {
         results.json().then((data) => {
           this.setState({bars: data[Math.floor(Math.random() * data.length)]});
+          this.setState({loader: { display: 'none'}});
+          this.setState({isVisible: {opacity: '1'}});
         });
       })
       .catch((err) => {
@@ -41,12 +53,17 @@ class BarResult extends Component {
   }
 
   selectNewBar() {
+    this.setState({isVisible: {opacity: '0'}});
+    this.setState({loader: {display: 'block'}});
+
     fetch(`http://localhost:8000/api/${this.state.position.coords.latitude}/${this.state.position.coords.longitude}`, {
       method: 'GET'
     })
     .then((results) => {
       results.json().then((data) => {
         this.setState({bars: data[Math.floor(Math.random() * data.length)]});
+        this.setState({loader: {display: 'none'}});
+        this.setState({isVisible: {opacity: '1'}});
       });
     })
     .catch((err) => {
@@ -65,7 +82,8 @@ class BarResult extends Component {
           rating: parseInt(`${this.state.bars.rating}`),
           phone: `${this.state.bars.display_phone}`,
           price: `${this.state.bars.price}`,
-          address: `${this.state.bars.location.display_address}`
+          address: `${this.state.bars.location.display_address}`,
+          user_id: window.localStorage.getItem('user_id')
         }
       }),
       headers: {
@@ -73,6 +91,7 @@ class BarResult extends Component {
       }
     })
     .then((data) => {
+      browserHistory.push('/users/dashboard');
       console.log(data);
     })
     .catch((err) => {
@@ -86,9 +105,9 @@ class BarResult extends Component {
       <div>
         <Nav />
         <div className="container">
-          <div className="loading-anim" style={this.state.display}></div>
+          <div className="loading-anim" style={this.state.loader}></div>
           <div className="bar-results">
-            <div className="bar-card">
+            <div className="bar-card" style={this.state.isVisible}>
               <BarInfo
                 name={this.state.bars.name}
                 status={this.state.bars.is_closed}
@@ -96,14 +115,10 @@ class BarResult extends Component {
                 phone_number={this.state.bars.display_phone}
                 price_range={this.state.bars.price}
               />
-              <button className="outline-btn">See More Info</button>
-              <button className="secondary-btn" type="submit" onClick={this.handleSubmit.bind(this)}>Add to Favorites</button>
-              {/* <form className="hidden-form" onSubmit={this.handleSubmit.bind(this)}>
-                <input name="bar_name" type="text" value={this.state.bars.name} />
-                <input name="bar_rating" type="text" value={this.state.bars.rating} />
-                <input name="phone_number" type="text" value={this.state.bars.display_phone} />
-                <input name="price_range" type="text" value={this.state.bars.price} />
-              </form> */}
+              <button className="outline-btn" onClick={this.handleSubmit.bind(this)}>Add to Favorites</button>
+              <a href={`http://www.google.com/maps/place/${this.state.bars.name}/@${this.state.bars.coordinates.latitude},${this.state.bars.coordinates.longitude},16z`} target="_blank">
+                <button className="secondary-btn">View on Google Maps<i className="fa fa-angle-right" id="secondary-btn-caret"></i></button>
+              </a>
             </div>
             <div className="randomizer">
               <h2>Need another option?</h2>

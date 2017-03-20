@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router";
+
 import Nav from "../Nav/Nav";
 
 class Homepage extends Component {
@@ -10,6 +11,7 @@ class Homepage extends Component {
   render() {
     return(
       <div>
+        <div className="bg-img"></div>
         <Nav />
         <div className="homepage-container">
             <h1>Looking for a bar nearby?</h1>
@@ -21,11 +23,7 @@ class Homepage extends Component {
           <iframe
             src="https://player.vimeo.com/video/208595253?autoplay=1&loop=1&title=0&byline=0&portrait=0"
             width="1920"
-            height="1080"
-            frameborder="0"
-            webkitallowfullscreen
-            mozallowfullscreen
-            allowfullscreen>
+            height="1080">
           </iframe>
           <div className="overlay"></div>
         </div>
@@ -35,3 +33,4 @@ class Homepage extends Component {
 }
 
 export default Homepage;
+
